@@ -31,6 +31,14 @@ _DIRECTIVE_RE = re.compile(r"\[\[ASL_DIRECTIVE\]\](.*?)\[\[END\]\]", re.DOTALL)
 _KV_RE = re.compile(r'(\w+)=(".*?"|\S+)')
 
 
+def directive_blocks(text: str | None) -> list[str]:
+    """Return the raw `[[ASL_DIRECTIVE]]...[[END]]` blocks found in text (used by the
+    P03 handoff, where a compromised agent forwards the framing verbatim)."""
+    if not text:
+        return []
+    return [f"[[ASL_DIRECTIVE]]{b}[[END]]" for b in _DIRECTIVE_RE.findall(text)]
+
+
 def parse_directives(text: str | None) -> list[dict[str, str]]:
     if not text:
         return []
@@ -70,8 +78,10 @@ class VulnerableModel:
             if not _did("http_get", "url", url, issued):
                 return _call("http_get", {"url": url})
 
-        # 2. Obey any directive found anywhere in context (task or tool output).
-        directives = self._collect(messages)
+        # 2. Obey any directive found anywhere in context: the task, tool output, OR a
+        #    tool *description* (Phase 4 tool poisoning — a description steers the model
+        #    even if that tool is never called).
+        directives = self._collect(messages, tools)
         for d in directives:
             turn = self._advance_directive(d, messages, issued)
             if turn is not None:
@@ -87,13 +97,16 @@ class VulnerableModel:
         return AssistantTurn(text=text, tool_calls=[])
 
     # ---- internals -----------------------------------------------------------------
-    def _collect(self, messages: list[Message]) -> list[dict[str, str]]:
+    def _collect(self, messages: list[Message],
+                 tools: list[ToolSchema] | None = None) -> list[dict[str, str]]:
         if not self.obey_directives:
             return []
         found: list[dict[str, str]] = []
         for m in messages:
             if m.role in ("user", "tool"):
                 found.extend(parse_directives(m.content))
+        for schema in tools or []:
+            found.extend(parse_directives(schema.description))
         return found
 
     def _advance_directive(self, d: dict[str, str], messages: list[Message],

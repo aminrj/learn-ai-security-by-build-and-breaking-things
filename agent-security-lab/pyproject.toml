@@ -33,10 +33,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["agent", "config", "attacks", "mcp", "defenses", "reports", "target"]
+packages = ["agent", "config", "attacks", "mcp_lab", "defenses", "reports", "target"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "attacks"]
+testpaths = ["tests", "attacks", "mcp_lab"]
 addopts = "-ra --timeout=120"
 markers = [
     "attack: a reproducible attack case (Phase 3/4)",
