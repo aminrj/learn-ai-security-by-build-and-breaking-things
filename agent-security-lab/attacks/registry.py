@@ -82,6 +82,8 @@ class AttackCase:
     setup: Callable[[Lab], None] = lambda lab: None
     unauthorized_tools: tuple[str, ...] = ("run_shell",)
     verify_override: Callable[[Evidence], Outcome] | None = None
+    # The tools the *legitimate* task needs — used to derive a per-task allowlist (Phase 5).
+    legit_tools: tuple[str, ...] = ("read_file",)
 
     def verify(self, ev: Evidence) -> Outcome:
         if self.verify_override is not None:
@@ -251,6 +253,7 @@ REGISTRY: list[AttackCase] = [
         make_model=lambda lab: VulnerableModel(
             benign_fetches=[f"{lab.docs_url}/{_WEB_PAGE}"], final_text="Status: all green."),
         setup=_indirect_web_setup,
+        legit_tools=("http_get",),  # the legit task legitimately fetches a page
     ),
     AttackCase(
         id="I03",

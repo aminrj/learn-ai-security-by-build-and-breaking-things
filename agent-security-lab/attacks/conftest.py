@@ -8,41 +8,18 @@ and the honeypot log — never from eyeballing model text.
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 
 import pytest
 
-from attacks.registry import Lab
-from target.honeypot.app import create_app as create_honeypot_app
-from target.serving import start_server
-from target.web import create_app as create_docs_app
-
-REPO = Path(__file__).resolve().parent.parent
+from attacks.labkit import armed_lab
 
 
 @pytest.fixture()
 def lab(tmp_path: Path):
     # Isolated copies so cases can plant payloads without touching the committed target.
-    workdir = tmp_path / "workdir"
-    shutil.copytree(REPO / "target" / "workdir", workdir)
-    docs_dir = tmp_path / "docs"
-    shutil.copytree(REPO / "target" / "docs", docs_dir)
-    honeypot_log = tmp_path / "honeypot.log"
-
-    honeypot = start_server(create_honeypot_app(honeypot_log))
-    docs = start_server(create_docs_app(docs_dir))
-    try:
-        yield Lab(
-            workdir=workdir,
-            docs_dir=docs_dir,
-            honeypot_url=honeypot.base_url,
-            honeypot_log=honeypot_log,
-            docs_url=docs.base_url,
-        )
-    finally:
-        honeypot.stop()
-        docs.stop()
+    with armed_lab(tmp_path) as the_lab:
+        yield the_lab
 
 
 @pytest.fixture()

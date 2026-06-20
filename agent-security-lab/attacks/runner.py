@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 
 from agent.dispatch import Dispatcher, Enforcer
-from agent.loop import AgentLoop
+from agent.loop import SYSTEM_PROMPT, AgentLoop
 from agent.tools import ToolContext, default_tools
 from agent.trace import Tracer, default_results_dir
 from attacks.registry import AttackCase, Evidence, Lab, Outcome
@@ -23,6 +23,7 @@ def run_attack(
     lab: Lab,
     *,
     enforcer: Enforcer | None = None,
+    system_prompt: str | None = None,
     results_root: Path | None = None,
     max_turns: int = 8,
 ) -> Evidence:
@@ -42,7 +43,8 @@ def run_attack(
     ctx = ToolContext(workdir=lab.workdir, tracer=tracer)
     dispatcher = Dispatcher(tools, ctx, enforcer=enforcer)
     model = case.make_model(lab)
-    loop = AgentLoop(model, dispatcher, tools, tracer, max_turns=max_turns)
+    loop = AgentLoop(model, dispatcher, tools, tracer, max_turns=max_turns,
+                     system_prompt=system_prompt or SYSTEM_PROMPT)
 
     transcript = loop.run(case.make_task(lab))
 

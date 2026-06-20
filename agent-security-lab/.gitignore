@@ -36,12 +36,12 @@ htmlcov/
 *.local.env
 
 # ---- Lab run artifacts ----
-# Attack/defense run outputs are regenerated; keep the dirs (.gitkeep) not the runs.
-attacks/results/*/
+# Attack/defense run outputs are regenerated; keep the dir (.gitkeep) not the runs.
+attacks/results/*
+!attacks/results/.gitkeep
 reports/out/
 honeypot.log
 *.jsonl
-!attacks/fixtures/*.jsonl
 
 # ---- Editor / OS ----
 .idea/
