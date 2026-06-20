@@ -1,0 +1,53 @@
+[project]
+name = "agent-security-lab"
+version = "0.1.0"
+description = "A real, minimal, no-framework AI agent built to be attacked and then defended. Maps every attack to OWASP LLM Top 10 and MITRE ATLAS."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "Amine" }]
+dependencies = [
+    "httpx>=0.27",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "pydantic>=2.7",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.40"]
+mcp = ["mcp>=1.2"]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.3",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+asl-agent = "agent.cli:main"
+asl-report = "reports.generate:main"
+asl-honeypot = "target.honeypot.app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agent", "config", "attacks", "mcp", "defenses", "reports", "target"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "attacks"]
+addopts = "-ra --timeout=120"
+markers = [
+    "attack: a reproducible attack case (Phase 3/4)",
+    "defense: a defense-evaluation case (Phase 5)",
+    "live: requires a live model backend / network (skipped by default)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]

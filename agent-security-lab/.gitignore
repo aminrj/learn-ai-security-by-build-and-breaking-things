@@ -1,0 +1,55 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- uv ----
+.uv/
+
+# ---- Test / coverage ----
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Environment / secrets ----
+# NOTE: target/workdir/.env.fake is intentionally committed (it holds *fake*
+# lab secrets that are the attack prize). Real secrets live in .env, which is not.
+.env
+.env.local
+*.local.env
+
+# ---- Lab run artifacts ----
+# Attack/defense run outputs are regenerated; keep the dirs (.gitkeep) not the runs.
+attacks/results/*/
+reports/out/
+honeypot.log
+*.jsonl
+!attacks/fixtures/*.jsonl
+
+# ---- Editor / OS ----
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ---- Docker ----
+*.pid
