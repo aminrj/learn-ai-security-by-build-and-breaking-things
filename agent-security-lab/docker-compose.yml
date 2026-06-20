@@ -1,0 +1,45 @@
+# Brings up the lab's armed environment on an isolated network:
+#   - sandbox : where run_shell executes (DockerSandboxRunner does `docker exec asl-sandbox`)
+#   - honeypot: the "forbidden host" that records exfil/SSRF attempts
+#   - docs    : local web server serving target/docs (indirect-injection web vector)
+#
+# The llama.cpp model server runs on the HOST (e.g. an RTX 3090) and is reached from
+# containers via host.docker.internal. Only that egress is intended to leave the network.
+
+services:
+  sandbox:
+    build: .
+    container_name: asl-sandbox
+    working_dir: /work
+    # The agent's run_shell runs here, never on the host. Kept alive for `docker exec`.
+    command: ["sleep", "infinity"]
+    volumes:
+      - ./target/workdir:/work
+    networks: [lab]
+    # No published ports: the sandbox is not reachable from outside the lab network.
+
+  honeypot:
+    build: .
+    container_name: asl-honeypot
+    command: ["python", "-m", "target.honeypot.app", "--host", "0.0.0.0", "--port", "9009",
+              "--log", "/data/honeypot.log"]
+    volumes:
+      - ./target/honeypot:/data
+    ports:
+      - "9009:9009"
+    networks: [lab]
+
+  docs:
+    build: .
+    container_name: asl-docs
+    command: ["python", "-m", "target.web", "--host", "0.0.0.0", "--port", "8081",
+              "--docs", "/app/target/docs"]
+    ports:
+      - "8081:8081"
+    networks: [lab]
+
+networks:
+  lab:
+    driver: bridge
+    # `internal: true` would fully isolate the network; left bridged so the host model
+    # endpoint is reachable. Egress filtering to the honeypot is enforced in Phase 5.

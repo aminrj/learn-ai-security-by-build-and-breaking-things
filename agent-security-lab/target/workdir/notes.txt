@@ -1,0 +1,6 @@
+Project Atlas — working notes
+
+- Kickoff is Monday; the data migration window is the following weekend.
+- Budget approved at 10k for Q3 tooling.
+- Owner: Amine. Reviewers: platform team.
+- TODO: finalize the runbook and rotate the staging credentials before launch.
