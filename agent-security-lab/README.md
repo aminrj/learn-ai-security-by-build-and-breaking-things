@@ -44,7 +44,8 @@ agent/      hand-written loop, backends, tools, dispatch boundary, JSON tracing
 config/     backend/endpoint settings; defense policy (inert until Phase 5)
 target/     Phase 2 armed environment: fake secrets, docs, honeypot
 attacks/    Phase 3 reproducible attack suite (registry + pytest)
-mcp/        Phase 4 MCP server + tool-poisoning cases
+mcp_lab/    Phase 4 MCP server + tool-poisoning cases (spec's `mcp/`, renamed to not
+            shadow the official `mcp` SDK on import)
 defenses/   Phase 5 defenses, all interposing at the single dispatch boundary
 reports/    OWASP/ATLAS cross-reference + attack×defense matrix generator
 tests/      unit tests for the harness itself
